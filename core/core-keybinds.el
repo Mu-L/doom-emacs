@@ -110,7 +110,10 @@ all hooks after it are ignored.")
   :init
   ;; Convenience aliases
   (defalias 'define-key! #'general-def)
-  (defalias 'undefine-key! #'general-unbind))
+  (defalias 'undefine-key! #'general-unbind)
+  :config
+  ;; Prevent "X starts with non-prefix key Y" errors except at startup.
+  (add-hook 'doom-after-init-modules-hook #'general-auto-unbind-keys))
 
 
 ;; HACK `map!' uses this instead of `define-leader-key!' because it consumes
@@ -167,7 +170,7 @@ interface.
 
 See `doom-localleader-key' and `doom-localleader-alt-key' to change the
 localleader prefix."
-  (if (featurep 'evil)
+  (if (featurep! :editor evil)
       ;; :non-normal-prefix doesn't apply to non-evil sessions (only evil's
       ;; emacs state)
       `(general-define-key

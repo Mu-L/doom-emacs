@@ -99,8 +99,8 @@ argument: the identifier at point. See `set-lookup-handlers!' about adding to
 this list.")
 
 (defvar +lookup-file-functions
-  '(+lookup-ffap-backend-fn
-    +lookup-bug-reference-backend-fn)
+  '(+lookup-bug-reference-backend-fn
+    +lookup-ffap-backend-fn)
   "Function for `+lookup/file' to try, before restoring to `find-file-at-point'.
 Stops at the first function to return non-nil or change the current
 window/point.
@@ -165,13 +165,8 @@ Dictionary.app behind the scenes to get definitions.")
     :when (featurep! :completion ivy)
     :config
     (set-popup-rule! "^\\*xref\\*$" :ignore t)
-    ;; xref initialization is different in Emacs 27 - there are two different
-    ;; variables which can be set rather than just one
-    (when EMACS27+
-      (setq xref-show-definitions-function #'ivy-xref-show-defs))
-    ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
-    ;; commands other than xref-find-definitions too (eg project-find-regexp)
-    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
+    (setq xref-show-definitions-function #'ivy-xref-show-defs
+          xref-show-xrefs-function       #'ivy-xref-show-xrefs)
 
     ;; HACK Fix #4386: `ivy-xref-show-xrefs' calls `fetcher' twice, which has
     ;; side effects that breaks in some cases (i.e. on `dired-do-find-regexp').

@@ -39,12 +39,12 @@
 
 ;; Smart tab, these will only work in GUI Emacs
 (map! :i [tab] (cmds! (and (featurep! :editor snippets)
-                           (bound-and-true-p yas-minor-mode)
                            (yas-maybe-expand-abbrev-key-filter 'yas-expand))
                       #'yas-expand
-                      (featurep! :completion company +tng)
+                      (and (bound-and-true-p company-mode)
+                           (featurep! :completion company +tng))
                       #'company-indent-or-complete-common)
-      :m [tab] (cmds! (and (bound-and-true-p yas-minor-mode)
+      :m [tab] (cmds! (and (featurep! :editor snippets)
                            (evil-visual-state-p)
                            (or (eq evil-visual-selection 'line)
                                (not (memq (char-after) (list ?\( ?\[ ?\{ ?\} ?\] ?\))))))
@@ -306,6 +306,7 @@
         :desc "Switch workspace"          "."   #'+workspace/switch-to
         :desc "Switch to last workspace"  "`"   #'+workspace/other
         :desc "New workspace"             "n"   #'+workspace/new
+        :desc "New named workspace"       "N"   #'+workspace/new-named
         :desc "Load workspace from file"  "l"   #'+workspace/load
         :desc "Save workspace to file"    "s"   #'+workspace/save
         :desc "Delete session"            "x"   #'+workspace/kill-session
@@ -445,7 +446,7 @@
         :desc "Magit blame"               "B"   #'magit-blame-addition
         :desc "Magit clone"               "C"   #'magit-clone
         :desc "Magit fetch"               "F"   #'magit-fetch
-        :desc "Magit buffer log"          "L"   #'magit-log
+        :desc "Magit buffer log"          "L"   #'magit-log-buffer-file
         :desc "Git stage file"            "S"   #'magit-stage-file
         :desc "Git unstage file"          "U"   #'magit-unstage-file
         (:prefix ("f" . "find")
@@ -488,7 +489,7 @@
        :desc "Evil ex path"                  "p"   (cmd! (evil-ex "R!echo "))
        :desc "From evil register"            "r"   #'evil-ex-registers
        :desc "Snippet"                       "s"   #'yas-insert-snippet
-       :desc "Unicode"                       "u"   #'unicode-chars-list-chars
+       :desc "Unicode"                       "u"   #'insert-char
        :desc "From clipboard"                "y"   #'+default/yank-pop)
 
       ;;; <leader> n --- notes
@@ -682,8 +683,7 @@
       ;;; <leader> t --- toggle
       (:prefix-map ("t" . "toggle")
        :desc "Big mode"                     "b" #'doom-big-font-mode
-       (:when (featurep! :ui fill-column)
-        :desc "Fill Column Indicator"       "c" #'+fill-column/toggle)
+       :desc "Fill Column Indicator"        "c" #'global-display-fill-column-indicator-mode
        :desc "Flymake"                      "f" #'flymake-mode
        (:when (featurep! :checkers syntax)
         :desc "Flycheck"                   "f" #'flycheck-mode)

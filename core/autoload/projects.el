@@ -1,10 +1,13 @@
 ;;; core/autoload/projects.el -*- lexical-binding: t; -*-
 
-(defvar projectile-project-root)
-(defvar projectile-enable-caching)
-(defvar projectile-require-project-root)
-
-;;;###autoload (autoload 'projectile-relevant-known-projects "projectile")
+;; HACK We forward declare these variables because they are let-bound in a
+;;      number of places with no guarantee that they've been defined yet (i.e.
+;;      that `projectile' is loaded). If a variable is defined with `defvar'
+;;      while it is lexically bound, you get "Defining as dynamic an already
+;;      lexical var" errors in Emacs 28+).
+;;;###autoload (defvar projectile-project-root nil)
+;;;###autoload (defvar projectile-enable-caching doom-interactive-p)
+;;;###autoload (defvar projectile-require-project-root 'prompt)
 
 ;;;###autodef
 (cl-defun set-project-type! (name &key predicate compile run test configure dir)
@@ -146,7 +149,7 @@ If DIR is not a project, it will be indexed (but not cached)."
 
 ;;;###autoload
 (defun doom-project-ignored-p (project-root)
-  "Return non-nil if remote or temporary file, or a straight package."
-  (and (not (file-remote-p project-root))
-       (or (file-in-directory-p project-root temporary-file-directory)
-           (file-in-directory-p project-root doom-local-dir))))
+  "Return non-nil if temporary file or a straight package."
+  (unless (file-remote-p project-root)
+    (or (file-in-directory-p project-root temporary-file-directory)
+        (file-in-directory-p project-root doom-local-dir))))

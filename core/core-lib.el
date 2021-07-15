@@ -492,8 +492,8 @@ This macro accepts, in order:
   1. The mode(s) or hook(s) to add to. This is either an unquoted mode, an
      unquoted list of modes, a quoted hook variable or a quoted list of hook
      variables.
-  2. Optional properties :local and/or :append, which will make the hook
-     buffer-local or append to the list of hooks (respectively),
+  2. Optional properties :local, :append, and/or :depth [N], which will make the
+     hook buffer-local or append to the list of hooks (respectively),
   3. The function(s) to be added: this can be one function, a quoted list
      thereof, a list of `defun's, or body forms (implicitly wrapped in a
      lambda).
@@ -510,10 +510,12 @@ This macro accepts, in order:
          append-p
          local-p
          remove-p
+         depth
          forms)
     (while (keywordp (car rest))
       (pcase (pop rest)
         (:append (setq append-p t))
+        (:depth  (setq depth (pop rest)))
         (:local  (setq local-p t))
         (:remove (setq remove-p t))))
     (let ((first (car-safe (car rest))))
@@ -535,7 +537,7 @@ This macro accepts, in order:
         (dolist (func func-forms)
           (push (if remove-p
                     `(remove-hook ',hook #',func ,local-p)
-                  `(add-hook ',hook #',func ,append-p ,local-p))
+                  `(add-hook ',hook #',func ,(or depth append-p) ,local-p))
                 forms)))
       (macroexp-progn
        (append defn-forms
@@ -623,139 +625,7 @@ testing advice (when combined with `rotate-text').
 ;;
 ;;; Backports
 
-(eval-when! (version< emacs-version "27.0.90")
-  ;; DEPRECATED Backported from Emacs 27
-  (defmacro setq-local (&rest pairs)
-    "Make variables in PAIRS buffer-local and assign them the corresponding values.
-
-PAIRS is a list of variable/value pairs.  For each variable, make
-it buffer-local and assign it the corresponding value.  The
-variables are literal symbols and should not be quoted.
-
-The second VALUE is not computed until after the first VARIABLE
-is set, and so on; each VALUE can use the new value of variables
-set earlier in the ‘setq-local’.  The return value of the
-‘setq-local’ form is the value of the last VALUE.
-
-\(fn [VARIABLE VALUE]...)"
-    (declare (debug setq))
-    (unless (zerop (mod (length pairs) 2))
-      (error "PAIRS must have an even number of variable/value members"))
-    (let ((expr nil))
-      (while pairs
-        (unless (symbolp (car pairs))
-          (error "Attempting to set a non-symbol: %s" (car pairs)))
-        ;; Can't use backquote here, it's too early in the bootstrap.
-        (setq expr
-              (cons
-               (list 'set
-                     (list 'make-local-variable (list 'quote (car pairs)))
-                     (car (cdr pairs)))
-               expr))
-        (setq pairs (cdr (cdr pairs))))
-      (macroexp-progn (nreverse expr)))))
-
-(eval-when! (version< emacs-version "27.1")
-  ;; DEPRECATED Backported from Emacs 27. Remove when 26.x support is dropped.
-  (defun executable-find (command &optional remote)
-    "Search for COMMAND in `exec-path' and return the absolute file name.
-Return nil if COMMAND is not found anywhere in `exec-path'.  If
-REMOTE is non-nil, search on the remote host indicated by
-`default-directory' instead."
-    (if (and remote (file-remote-p default-directory))
-        (let ((res (locate-file
-                    command
-                    (mapcar
-                     (lambda (x) (concat (file-remote-p default-directory) x))
-                     (exec-path))
-                    exec-suffixes 'file-executable-p)))
-          (when (stringp res) (file-local-name res)))
-      ;; Use 1 rather than file-executable-p to better match the
-      ;; behavior of call-process.
-      (let ((default-directory
-              (let (file-name-handler-alist)
-                (file-name-quote default-directory))))
-        (locate-file command exec-path exec-suffixes 1)))))
-
-(eval-when! (not (fboundp 'exec-path))
-  ;; DEPRECATED Backported from Emacs 27.1. Remove when 26.x support is dropped.
-  (defun exec-path ()
-    "Return list of directories to search programs to run in remote subprocesses.
-The remote host is identified by `default-directory'.  For remote
-hosts that do not support subprocesses, this returns `nil'.
-If `default-directory' is a local directory, this function returns
-the value of the variable `exec-path'."
-    (let ((handler (find-file-name-handler default-directory 'exec-path)))
-      (if handler
-          (funcall handler 'exec-path)
-        exec-path))))
-
-;; DEPRECATED Remove once enough packages have adapted to these breaking changes.
-(eval-when! EMACS28+
-  (defmacro define-obsolete-variable-alias (obsolete-name current-name &optional when docstring)
-    "Make OBSOLETE-NAME a variable alias for CURRENT-NAME and mark it obsolete.
-
-WHEN should be a string indicating when the variable was first
-made obsolete, for example a date or a release number.
-
-This macro evaluates all its parameters, and both OBSOLETE-NAME
-and CURRENT-NAME should be symbols, so a typical usage would look like:
-
-  (define-obsolete-variable-alias 'foo-thing 'bar-thing \"27.1\")
-
-This macro uses `defvaralias' and `make-obsolete-variable' (which see).
-See the Info node `(elisp)Variable Aliases' for more details.
-
-If CURRENT-NAME is a defcustom or a defvar (more generally, any variable
-where OBSOLETE-NAME may be set, e.g. in an init file, before the
-alias is defined), then the define-obsolete-variable-alias
-statement should be evaluated before the defcustom, if user
-customizations are to be respected.  The simplest way to achieve
-this is to place the alias statement before the defcustom (this
-is not necessary for aliases that are autoloaded, or in files
-dumped with Emacs).  This is so that any user customizations are
-applied before the defcustom tries to initialize the
-variable (this is due to the way `defvaralias' works).
-
-For the benefit of Customize, if OBSOLETE-NAME has
-any of the following properties, they are copied to
-CURRENT-NAME, if it does not already have them:
-`saved-value', `saved-variable-comment'."
-    (declare (doc-string 4)
-             (advertised-calling-convention
-              (obsolete-name current-name when &optional docstring) "23.1"))
-    `(progn
-       (defvaralias ,obsolete-name ,current-name ,docstring)
-       (dolist (prop '(saved-value saved-variable-comment))
-         (and (get ,obsolete-name prop)
-              (null (get ,current-name prop))
-              (put ,current-name prop (get ,obsolete-name prop))))
-       (make-obsolete-variable ,obsolete-name ,current-name ,when)))
-
-  (defmacro define-obsolete-face-alias (obsolete-face current-face &optional when)
-    "Make OBSOLETE-FACE a face alias for CURRENT-FACE and mark it obsolete.
-WHEN should be a string indicating when the face was first made
-obsolete, for example a date or a release number."
-    `(progn (put ,obsolete-face 'face-alias ,current-face)
-            (put ,obsolete-face 'obsolete-face (or (purecopy ,when) t))))
-
-  (defmacro define-obsolete-function-alias (obsolete-name current-name &optional when docstring)
-    "Set OBSOLETE-NAME's function definition to CURRENT-NAME and mark it obsolete.
-
-\(define-obsolete-function-alias \\='old-fun \\='new-fun \"22.1\" \"old-fun's doc.\")
-
-is equivalent to the following two lines of code:
-
-\(defalias \\='old-fun \\='new-fun \"old-fun's doc.\")
-\(make-obsolete \\='old-fun \\='new-fun \"22.1\")
-
-WHEN should be a string indicating when the function was first
-made obsolete, for example a date or a release number.
-
-See the docstrings of `defalias' and `make-obsolete' for more details."
-    (declare (doc-string 4))
-    `(progn (defalias ,obsolete-name ,current-name ,docstring)
-            (make-obsolete ,obsolete-name ,current-name ,when))))
+;; None at the moment!
 
 (provide 'core-lib)
 ;;; core-lib.el ends here

@@ -7,4 +7,4 @@
   :recipe (:host github
            :repo "hlissner/doom-snippets"
            :files ("*.el" "*"))
-  :pin "afe549bd63403cec5187371ec1986e68a9e5ee3c")
+  :pin "5c0eb5bd70f035cefb981c2ce64f4367498bdda6")

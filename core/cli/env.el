@@ -58,9 +58,12 @@ Why this over exec-path-from-shell?
 
 (defvar doom-env-blacklist
   '(;; State that may be problematic if overwritten
-    "^HOME$" "^\\(OLD\\)?PWD$" "^SHLVL$" "^PS1$" "^R?PROMPT$" "^TERM$" "^USER$"
-    ;; X server or services' variables
+    "^HOME$" "^\\(OLD\\)?PWD$" "^SHLVL$" "^PS1$" "^R?PROMPT$" "^TERM\\(CAP\\)?$"
+    "^USER$"
+    ;; X server or services' variables that shouldn't be persisted
     "^DISPLAY$" "^DBUS_SESSION_BUS_ADDRESS$" "^XAUTHORITY$"
+    ;; Windows+WSL envvars that shouldn't be persisted
+    "^WSL_INTEROP$"
     ;; ssh and gpg variables (likely to become stale)
     "^SSH_\\(AUTH_SOCK\\|AGENT_PID\\)$" "^\\(SSH\\|GPG\\)_TTY$"
     "^GPG_AGENT_INFO$"
@@ -123,13 +126,15 @@ default, on Linux, this is '$SHELL -ic /usr/bin/env'. Variables in
          (let ((blacklist (remq nil (append blacklist doom-env-blacklist)))
                (whitelist (remq nil (append whitelist doom-env-whitelist))))
            (insert "(")
-           (dolist (env doom--initial-process-environment)
-             (let* ((var  (car (split-string env "=")))
-                    (pred (doom-rpartial #'string-match-p var)))
-               (if (seq-find pred blacklist)
-                   (doom-log "Ignoring %s" var)
-                 (when (seq-find pred whitelist)
-                   (doom-log "Whitelisted %s" var))
+           (dolist (env (get 'process-environment 'initial-value))
+             (catch 'skip
+               (let* ((var  (car (split-string env "=")))
+                      (pred (doom-rpartial #'string-match-p var)))
+                 (when (seq-find pred blacklist)
+                   (if (seq-find pred whitelist)
+                       (doom-log "Whitelisted %s" var)
+                     (doom-log "Ignored %s" var)
+                     (throw 'skip t)))
                  (insert (prin1-to-string env) "\n "))))
            (insert ")"))
          (print! (success "Successfully generated %S") (path env-file))

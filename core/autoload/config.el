@@ -74,22 +74,22 @@ package list, and lastly, reloads your private config.el.
 
 Runs `doom-after-reload-hook' afterwards."
   (interactive)
-  (require 'core-cli)
   (when (and IS-WINDOWS (file-exists-p doom-env-file))
     (message "Can't regenerate envvar file from within Emacs. Run 'doom env' from the console"))
   ;; In case doom/reload is run before incrementally loaded packages are loaded,
   ;; which could cause odd load order issues.
   (mapc #'require (cdr doom-incremental-packages))
   (doom--if-compile (format "%S sync -e" doom-bin)
-      (let ((doom-reloading-p t))
-        (run-hook-wrapped 'doom-before-reload-hook #'doom-try-run-hook)
+      (let ((doom-reloading-p t)
+            doom-env-file)
+        (doom-run-hooks 'doom-before-reload-hook)
         (doom-initialize 'force)
         (with-demoted-errors "PRIVATE CONFIG ERROR: %s"
           (general-auto-unbind-keys)
           (unwind-protect
               (doom-initialize-modules 'force)
             (general-auto-unbind-keys t)))
-        (run-hook-wrapped 'doom-after-reload-hook #'doom-try-run-hook)
+        (doom-run-hooks 'doom-after-reload-hook)
         (message "Config successfully reloaded!"))
     (user-error "Failed to reload your config")))
 
