@@ -1,4 +1,4 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; app/everywhere/packages.el
 
-(package! emacs-everywhere :pin "64ba2e3f3096f48928f7be06ed690069b96add22")
+(package! emacs-everywhere :pin "ed03b9396da9ef16e498a2d33a51ec5596021b0e")

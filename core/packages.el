@@ -17,7 +17,7 @@
             :branch ,straight-repository-branch
             :local-repo "straight.el"
             :files ("straight*.el"))
-  :pin "b45dd00408ff8e922f2d7f75441fd5603e5222fa")
+  :pin "92d4153362a87a585d16f31a2591324dac48e9f0")
 
 ;; core-modules.el
 (package! use-package
@@ -25,28 +25,28 @@
   :pin "a7422fb8ab1baee19adb2717b5b47b9c3812a84c")
 
 ;; core-ui.el
-(package! all-the-icons :pin "9d97c074b08000eacefc03ebc5dadbdc33888cc2")
-(package! hide-mode-line :pin "88888825b5b27b300683e662fa3be88d954b1cea")
+(package! all-the-icons :pin "483dba65e897071c156cefec937edcf51aa333db")
+(package! hide-mode-line :pin "bc5d293576c5e08c29e694078b96a5ed85631942")
 (package! highlight-numbers :pin "8b4744c7f46c72b1d3d599d4fb75ef8183dee307")
 (package! rainbow-delimiters :pin "d576e6694ad3a3e88b2bb1363305b38fa364c149")
 (package! restart-emacs :pin "1607da2bc657fe05ae01f7fdf26f716eafead02c")
 
 ;; core-editor.el
-(package! better-jumper :pin "411ecdf6e7a3e1b4ced7605070d2309e5fc46556")
-(package! dtrt-indent :pin "9714f2c5f1c9b7c21e732df8c15a870a88caba84")
-(package! helpful :pin "7e4b1f0d5572a4e2b8ee7a9b084ef863d0315a73")
+(package! better-jumper :pin "3148a17b5920bba8ec4f81b717b99acde5fd5b74")
+(package! dtrt-indent :pin "1986ad4e60f2e21f69d77ef9fb14da80a6157866")
+(package! helpful :pin "2afbde902742b1aa64daa31a635ba564f14b35ae")
 (package! pcre2el :pin "0b5b2a2c173aab3fd14aac6cf5e90ad3bf58fa7d")
-(package! smartparens :pin "911cc896a0f2eb8b5fbdd6fc8331523ad9889a3a")
+(package! smartparens :pin "f59a40d54f35299007c396bd667ce3e9ec4714e3")
 (package! ws-butler
   ;; Use my fork of ws-butler, which has a few choice improvements and
   ;; optimizations (the original has been abandoned).
   :recipe (:host github :repo "hlissner/ws-butler")
-  :pin "2bb49d3ee7d2cba133bc7e9cdac416cd1c5e4fe0")
+  :pin "572a10c11b6cb88293de48acbb59a059d36f9ba5")
 
 ;; core-projects.el
-(package! projectile :pin "da08a9103b5ba3b38ef031a9627a19436eb318b5")
-(package! project :pin "4072f35d85bf0a1c669329d66633e4819f497c1c")
+(package! projectile :pin "2bb7ec28b1275bbce7cac743ee9e7b2cf41c5bbd")
+(package! project :pin "401e4aa68e5f46fe72ca6f9a1cb07cd84f5ee981")
 
 ;; core-keybinds.el
-(package! general :pin "a0b17d207badf462311b2eef7c065b884462cb7c")
-(package! which-key :pin "27d9fec33abb989b030f7677ccf5f799287d6472")
+(package! general :pin "9651024e7f40a8ac5c3f31f8675d3ebe2b667344")
+(package! which-key :pin "1bb1f723dab2fc8b88b7f7273d0a7fa11134b936")

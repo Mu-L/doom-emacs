@@ -41,7 +41,7 @@ they are absolute."
 
 ;;;###autoload
 (defun doom/find-file-in-other-project (project-root)
-  "Preforms `projectile-find-file' in a known project of your choosing."
+  "Performs `projectile-find-file' in a known project of your choosing."
   (interactive
    (list
     (completing-read "Find file in project: " (projectile-relevant-known-projects))))
@@ -51,7 +51,7 @@ they are absolute."
 
 ;;;###autoload
 (defun doom/browse-in-other-project (project-root)
-  "Preforms `find-file' in a known project of your choosing."
+  "Performs `find-file' in a known project of your choosing."
   (interactive
    (list
     (completing-read "Browse in project: " (projectile-relevant-known-projects))))
@@ -68,6 +68,24 @@ they are absolute."
 (defun doom/find-file-in-emacsd ()
   "Find a file under `doom-emacs-dir', recursively."
   (interactive) (doom-project-find-file doom-emacs-dir))
+
+;;;###autoload
+(defun doom/add-directory-as-project (dir)
+  "Register an arbitrary directory as a project.
+If DIR is not a valid project, a .project file will be created within it. This
+command will throw an error if a parent of DIR is a valid project (which would
+mask DIR)."
+  (interactive "D")
+  (let ((short-dir (abbreviate-file-name dir)))
+    (unless (file-equal-p (doom-project-root dir) dir)
+      (with-temp-file (doom-path dir ".project")))
+    (let ((proj-dir (doom-project-root dir)))
+      (unless (file-equal-p proj-dir dir)
+        (user-error "Can't add %S as a project, because %S is already a project"
+                    short-dir (abbreviate-file-name proj-dir)))
+      (message "%S was not a project; adding .project file to it"
+               short-dir (abbreviate-file-name proj-dir))
+      (projectile-add-known-project directory))))
 
 
 ;;
