@@ -412,7 +412,8 @@
         :desc "Rename workspace"             "r" #'+workspace/rename
         :desc "Create workspace"             "c" #'+workspace/new
         :desc "Create named workspace"       "C" #'+workspace/new-named
-        :desc "Delete workspace"             "k" #'+workspace/delete
+        :desc "Delete workspace"             "k" #'+workspace/kill
+        :desc "Delete saved workspace"       "K" #'+workspace/delete
         :desc "Save workspace"               "S" #'+workspace/save
         :desc "Switch to other workspace"    "o" #'+workspace/other
         :desc "Switch to left workspace"     "p" #'+workspace/switch-left
@@ -469,15 +470,7 @@
         (:when (modulep! :completion ivy)
          :desc "Jump to channel"  "j" #'+irc/ivy-jump-to-channel)
         (:when (modulep! :completion vertico)
-         :desc "Jump to channel"  "j" #'+irc/vertico-jump-to-channel)))
-
-      ;;; <leader> T --- twitter
-      (:when (modulep! :app twitter)
-       (:prefix-map ("T" . "twitter")
-        :desc "Open twitter app" "T" #'=twitter
-        :desc "Quit twitter"     "q" #'+twitter/quit
-        :desc "Rerender twits"   "r" #'+twitter/rerender-all
-        :desc "Ace link"         "l" #'+twitter/ace-link)))
+         :desc "Jump to channel"  "j" #'+irc/vertico-jump-to-channel))))
 
 
 ;;
