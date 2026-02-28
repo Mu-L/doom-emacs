@@ -75,7 +75,7 @@ TYPE should be a keyword of any of the known doom-*-error errors (e.g. :font,
 ;; This is a macro instead of a function to prevent the potentially expensive
 ;; evaluation of its arguments when debug mode is off. Return non-nil.
 (defmacro doom-log (message &rest args)
-  "Log a message to stderr or *Messages* (without displaying in the echo area)."
+  "Log MESSAGE formatted with ARGS to stderr or *Messages* (but not echo area)."
   (declare (debug t))
   (let ((level (if (integerp message)
                    (prog1 message
@@ -256,8 +256,7 @@ Meant to be used with `run-hook-wrapped'."
   nil)
 
 (defun doom-run-hooks (&rest hooks)
-  "Run HOOKS (a list of hook variable symbols) with better error handling.
-Is used as advice to replace `run-hooks'."
+  "Run HOOKS (a list of hook variable symbols) with better error handling."
   (dolist (hook hooks)
     (condition-case-unless-debug e
         (let ((doom--hook hook))
