@@ -217,6 +217,7 @@ Can also load Doom's subfeatures, e.g. (doom-require 'doom-lib 'files)"
            (symbol-name feature))
          noerror))))
 
+;;; DEPRECATED: Remove in v3 (where the envvar file will be an elisp file)
 (defun doom-load-envvars-file (file &optional noerror)
   "Read and set envvars from FILE.
 If NOERROR is non-nil, don't throw an error if the file doesn't exist or is
