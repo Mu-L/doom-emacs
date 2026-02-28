@@ -308,6 +308,7 @@ TRIGGER-HOOK is a list of quoted hooks and/or sharp-quoted functions."
         (add-hook hook fn -101))
       fn)))
 
+;;; DEPRECATED: Remove in v3
 (defun doom-compile-functions (&rest fns)
   "Queue FNS to be byte/natively-compiled after a brief delay."
   (with-memoization (get 'doom-compile-function 'timer)
