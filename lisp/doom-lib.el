@@ -836,16 +836,8 @@ issues"
   (declare (obsolete "Use `cl-callf2' instead" "3.0.0"))
   `(setq ,sym (append ,sym ,@lists)))
 
-(defmacro setq! (&rest settings)
-  "A more sensible `setopt' for setting customizable variables.
-
-This can be used as a drop-in replacement for `setq' and *should* be used
-instead of `setopt'. Unlike `setq', this triggers custom setters on variables.
-Unlike `setopt', this won't needlessly pull in dependencies."
-  (macroexp-progn
-   (cl-loop for (var val) on settings by 'cddr
-            collect `(funcall (or (get ',var 'custom-set) #'set-default-toplevel-value)
-                              ',var ,val))))
+;; DEPRECATED: Remove in v3
+(define-obsolete-function-alias 'setq! 'setopt "3.0.0")
 
 ;; DEPRECATED: Remove in v3.0
 (defmacro delq! (elt list &optional fetcher)
