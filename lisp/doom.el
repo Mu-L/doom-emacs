@@ -885,7 +885,7 @@ appropriately against `noninteractive' or the `cli' context."
     ;; Remember these variables' initial values, so they can be safely reset
     ;; later (e.g. by `doom/reload'), or compared against for change heuristics.
     (dolist (var '(exec-path load-path process-environment))
-      (put var 'initial-value (default-toplevel-value var)))
+      (put var 'initial-value (copy-sequence (default-toplevel-value var))))
 
     t))
 
