@@ -849,9 +849,11 @@ If FETCHER is a function, ELT is used as the key in LIST (an alist)."
                         elt)
                      ,list)))
 
+;; DEPRECATED: Remove in v3
 (defmacro pushnew! (place &rest values)
   "Push VALUES sequentially into PLACE, if they aren't already present.
 This is a variadic `cl-pushnew'."
+  (declare (obsolete "Use a loop with `add-to-list' or `cl-pushnew' instead" "3.0.0"))
   (let ((var (make-symbol "result")))
     `(dolist (,var (list ,@values) (with-no-warnings ,place))
        (cl-pushnew ,var ,place :test #'equal))))
